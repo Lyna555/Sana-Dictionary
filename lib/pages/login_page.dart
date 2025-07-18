@@ -3,8 +3,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../services/auth_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:uuid/uuid.dart';
+
+import '../services/auth_service.dart';
 import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -24,6 +27,19 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
   String? _error;
 
+  Future<String> _getDeviceId() async {
+    final deviceInfo = DeviceInfoPlugin();
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfo.androidInfo;
+      return androidInfo.id;
+    } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfo.iosInfo;
+      return iosInfo.identifierForVendor ?? const Uuid().v4();
+    } else {
+      return const Uuid().v4();
+    }
+  }
+
   void _login() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -37,11 +53,18 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final token = await AuthService.login(email, password);
-
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', token);
 
+      final deviceId = await _getDeviceId();
       final user = await AuthService.getProfile(token);
+
+      if (user.deviceId == null || user.deviceId!.isEmpty) {
+        await AuthService.saveDeviceId(token, deviceId);
+      } else if (user.deviceId != deviceId) {
+        throw Exception('تم تسجيل الدخول من جهاز غير مصرح به');
+      }
+
       await prefs.setString('user', jsonEncode(user.toJson()));
 
       if (mounted) {
@@ -79,7 +102,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: _onWillPop,
+      onWillPop: _onWillPop,
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Padding(
@@ -100,8 +123,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 40),
-
-                    // Email Field
                     TextFormField(
                       style: const TextStyle(fontSize: 14),
                       controller: _emailController,
@@ -140,7 +161,6 @@ class _LoginPageState extends State<LoginPage> {
                         return null;
                       },
                     ),
-
                     const SizedBox(height: 16),
                     TextFormField(
                       style: const TextStyle(fontSize: 14),
@@ -189,19 +209,13 @@ class _LoginPageState extends State<LoginPage> {
                         return null;
                       },
                     ),
-
                     const SizedBox(height: 20),
-
-                    // Error Message
                     if (_error != null)
                       Text(
                         _error!,
                         style: const TextStyle(color: Colors.red, fontSize: 12),
                       ),
-
                     const SizedBox(height: 15),
-
-                    // Login Button or Loader
                     _isLoading
                         ? const CircularProgressIndicator()
                         : ElevatedButton(
