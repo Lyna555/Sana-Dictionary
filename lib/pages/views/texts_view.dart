@@ -221,7 +221,7 @@ class _TextsViewState extends State<TextsView> with TickerProviderStateMixin {
                                       text.title,
                                       style: const TextStyle(
                                         color: Colors.white,
-                                        fontSize: 15,
+                                        fontSize: 14,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),

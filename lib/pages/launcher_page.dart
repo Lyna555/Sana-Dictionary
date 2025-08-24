@@ -16,18 +16,6 @@ class _LauncherPageState extends State<LauncherPage> {
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
-  }
-
-  Future<void> _checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    await Future.delayed(const Duration(seconds: 2)); // Optional splash delay
-    if (context.mounted) {
-      if (token != null) {
-        Navigator.pushReplacementNamed(context, '/home');
-      }
-    }
   }
 
   Future<void> _startApp(BuildContext context) async {

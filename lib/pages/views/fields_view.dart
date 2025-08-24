@@ -145,7 +145,7 @@ class _FieldsViewState extends State<FieldsView> with TickerProviderStateMixin {
                 ),
                 const SizedBox(height: 30),
                 ScaleTransition(
-                  scale: _buttonsScale, // 👈 pop-up effect for buttons
+                  scale: _buttonsScale,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -183,13 +183,13 @@ class _FieldsViewState extends State<FieldsView> with TickerProviderStateMixin {
     required String label,
     required String image,
     required VoidCallback onTap,
-    required List<Color> gradientColors, // Add this
+    required List<Color> gradientColors,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 150,
-        height: 150,
+        width: 140,
+        height: 140,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: gradientColors,

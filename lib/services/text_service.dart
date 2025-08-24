@@ -14,21 +14,38 @@ class TextService {
       throw 'لم يتم تسجيل الدخول';
     }
 
-    final response = await http.get(
-      Uri.parse('$baseUrl/levels/1/fields/$field/texts'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    try {
+      final urls = [
+        '$baseUrl/levels/1/fields/$field/texts',
+        '$baseUrl/levels/1/fields/both/texts'
+      ];
 
-    if (response.statusCode == 200) {
-      final List data = json.decode(response.body);
-      return data.map((json) => SanaText.fromJson(json)).toList();
-    } else if (response.statusCode == 401) {
-      throw 'انتهت صلاحية الجلسة، يرجى تسجيل الدخول من جديد';
-    } else {
-      throw 'فشل في تحميل النصوص';
+      final responses = await Future.wait(
+        urls.map((url) => http.get(
+          Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        )),
+      );
+
+      List<SanaText> allTexts = [];
+
+      for (var response in responses) {
+        if (response.statusCode == 200) {
+          final List data = json.decode(response.body);
+          allTexts.addAll(data.map((json) => SanaText.fromJson(json)));
+        } else if (response.statusCode == 401) {
+          throw 'انتهت صلاحية الجلسة، يرجى تسجيل الدخول من جديد';
+        } else {
+          throw 'فشل في تحميل النصوص من ${response.request?.url}';
+        }
+      }
+
+      return allTexts;
+    } catch (e) {
+      throw 'حدث خطأ أثناء تحميل النصوص: $e';
     }
   }
 }

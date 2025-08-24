@@ -18,11 +18,9 @@ void main() async {
   final savedTheme = prefs.getString('themeMode') ?? 'light';
   themeNotifier.value = savedTheme == 'dark' ? ThemeMode.dark : ThemeMode.light;
 
-  final hasLaunchedBefore = prefs.getBool('hasLaunchedBefore') ?? false;
   final token = prefs.getString('token');
 
   runApp(SanaApp(
-    hasLaunchedBefore: hasLaunchedBefore,
     isLoggedIn: token != null,
   ));
 }
@@ -30,12 +28,10 @@ void main() async {
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 
 class SanaApp extends StatelessWidget {
-  final bool hasLaunchedBefore;
   final bool isLoggedIn;
 
   const SanaApp({
     super.key,
-    required this.hasLaunchedBefore,
     required this.isLoggedIn,
   });
 
@@ -56,10 +52,9 @@ class SanaApp extends StatelessWidget {
           theme: ThemeData(
             useMaterial3: true,
             colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color.fromRGBO(93, 151, 144, 1.0), // Teal
+              seedColor: const Color.fromRGBO(93, 151, 144, 1.0),
               brightness: Brightness.light,
             ),
-            // These are optional overrides if needed
             appBarTheme: const AppBarTheme(
               backgroundColor: Color.fromRGBO(93, 151, 144, 1.0),
               foregroundColor: Colors.white,

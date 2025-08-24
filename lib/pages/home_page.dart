@@ -337,14 +337,12 @@ class _HomePageState extends State<HomePage> {
                     ),
                     onPressed: () {
                       if (selectedTextId != null) {
-                        // Back from Words View to Texts View
                         setState(() {
                           selectedTextId = null;
                           selectedTextTitle = null;
                           _wordsFuture = null;
                         });
                       } else if (selectedField != null || _isProfileView) {
-                        // Back from Texts View or Profile to Fields View
                         setState(() {
                           selectedField = null;
                           _textsFuture = null;
