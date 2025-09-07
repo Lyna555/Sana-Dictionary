@@ -52,17 +52,17 @@ class _LoginPageState extends State<LoginPage> {
     final password = _passwordController.text;
 
     try {
-      final token = await AuthService.login(email, password);
+      final deviceId = await _getDeviceId();
+      final token = await AuthService.login(email, password, deviceId);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', token);
 
-      final deviceId = await _getDeviceId();
       final user = await AuthService.getProfile(token);
 
       if (user.deviceId == null || user.deviceId!.isEmpty) {
         await AuthService.saveDeviceId(token, deviceId);
       } else if (user.deviceId != deviceId) {
-        throw Exception('تم تسجيل الدخول من جهاز غير مصرح به');
+        _error = 'تم تسجيل الدخول من جهاز غير مصرح به';
       }
 
       await prefs.setString('user', jsonEncode(user.toJson()));
